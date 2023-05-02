@@ -24,7 +24,7 @@ pub enum MachineError {
     Failure
 }
 
-pub struct Il(String, Vec<fn(&mut Env) -> Result<(), MachineError>>);
+pub struct Il(pub String, pub Vec<fn(&mut Env) -> Result<(), MachineError>>);
 
 impl std::fmt::Debug for Il {
     fn fmt(&self, f : &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -38,12 +38,14 @@ impl std::fmt::Debug for Il {
 pub enum Word {
     Il(Il),
     Func(Vec<Rc<Word>>),
+    Exit,
 }
 
 #[derive(Debug, Clone)]
 pub struct Env {
     def_stack : Vec<HashMap<String, IlData>>,
     data_stack : Vec<IlData>,
+    func_stack : Vec<(Rc<Word>, usize)>,
     dict : HashMap<String, Rc<Word>>,
     parsers : Vec<Rc<Word>>,
 }
@@ -52,6 +54,7 @@ impl Env {
     pub fn new() -> Self {
         Env { def_stack : vec![]
             , data_stack : vec![]
+            , func_stack : vec![]
             , dict : HashMap::new()
             , parsers : vec![]
             }
@@ -88,5 +91,25 @@ impl Env {
     pub fn pop_data(&mut self) -> Result<IlData, MachineError> {
         // TODO error
         self.data_stack.pop().ok_or(MachineError::Failure)
+    }
+
+    pub fn push_func(&mut self, word : &Rc<Word>, ip : usize) {
+        self.func_stack.push((word.clone(), ip));
+    }
+
+    pub fn pop_func(&mut self) -> Result<(Rc<Word>, usize), MachineError> {
+        // TODO error
+        self.func_stack.pop().ok_or(MachineError::Failure)
+    }
+
+    pub fn get_dict(&self, target : &str) -> Result<Rc<Word>, MachineError> {
+        // TODO error
+        self.dict.get(target).ok_or(MachineError::Failure).map(|x| x.clone())
+    }
+
+    pub fn set_dict(&mut self, target : String, word : &Rc<Word>) -> Result<(), MachineError> {
+        // TODO error (collision)
+        self.dict.insert(target, word.clone());
+        Ok(())
     }
 }
