@@ -80,4 +80,13 @@ impl Env {
         // TODO error
         self.def_stack.pop().ok_or(MachineError::Failure).map(|_| ())
     }
+
+    pub fn push_data(&mut self, data : IlData) {
+        self.data_stack.push(data);
+    }
+
+    pub fn pop_data(&mut self) -> Result<IlData, MachineError> {
+        // TODO error
+        self.data_stack.pop().ok_or(MachineError::Failure)
+    }
 }
