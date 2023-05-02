@@ -42,41 +42,42 @@ pub enum Word {
 
 #[derive(Debug, Clone)]
 pub struct Env {
-    def_stack : HashMap<String, IlData>,
+    def_stack : Vec<HashMap<String, IlData>>,
     data_stack : Vec<IlData>,
     dict : HashMap<String, Rc<Word>>,
     parsers : Vec<Rc<Word>>,
 }
 
-
-/*impl<'a> DefStack<'a> {
-    pub fn new(base : &'a mut HashMap<String, IlData>) -> Self {
-        DefStack { base, stack : vec![] }
+impl Env {
+    pub fn new() -> Self {
+        Env { def_stack : vec![]
+            , data_stack : vec![]
+            , dict : HashMap::new()
+            , parsers : vec![]
+            }
     }
 
-    pub fn get(&self, name : &String) -> Option<&IlData> {
-        let target = self.stack.iter().rev().find(|map| map.contains_key(name));
+    pub fn get_def(&self, name : &String) -> Option<&IlData> {
+        let target = self.def_stack.iter().rev().find(|map| map.contains_key(name));
         match target { 
             Some(map) => map.get(name),
-            None => self.base.get(name),
+            None => None,
         }
     } 
 
-    pub fn set(&mut self, name : String, data : IlData) {
-        if self.stack.len() > 0 {
-            let last = self.stack.len() - 1;
-            self.stack[last].insert(name, data);
-        }
-        else {
-            self.base.insert(name, data);
-        }
+    pub fn set_def(&mut self, name : String, data : IlData) -> Result<(), MachineError> {
+        // TODO collision?
+        let last = self.def_stack.len() - 1;
+        self.def_stack[last].insert(name, data);
+        Ok(())
     }
 
-    pub fn push(&mut self) {
-        self.stack.push(HashMap::new());
+    pub fn push_def(&mut self) {
+        self.def_stack.push(HashMap::new());
     }
 
-    pub fn pop(&mut self) {
-        self.stack.pop();
+    pub fn pop_def(&mut self) -> Result<(), MachineError> {
+        // TODO error
+        self.def_stack.pop().ok_or(MachineError::Failure).map(|_| ())
     }
-}*/
+}
