@@ -6,9 +6,9 @@ pub enum IlData {
     Float(f64),
     Symbol(String),
     String(String),
+    Pattern(IlPat),
     Tuple(Vec<IlData>),
     List(Vec<IlData>),
-    Pattern(IlPat),
 }
 
 #[derive(Debug, Clone)]
@@ -24,19 +24,47 @@ pub enum MachineError {
     Failure
 }
 
-pub struct Il(pub String, pub Vec<fn(&mut Env) -> Result<(), MachineError>>);
+pub enum Il {
+    Instr { name: String, f : fn(&mut Env) -> Result<(), MachineError> },
+    InstrWithUsize { name: String, param : usize, f : fn(usize, &mut Env) -> Result<(), MachineError> },
+    InstrWithFloat { name: String, param : f64, f : fn(f64, &mut Env) -> Result<(), MachineError> },
+    InstrWithString { name: String, param : String, f : fn(String, &mut Env) -> Result<(), MachineError> },
+    InstrWithSymbol { name: String, param : String, f : fn(String, &mut Env) -> Result<(), MachineError> },
+}
+
+impl Il {
+    pub fn name(&self) -> &str {
+        match self {
+            Il::Instr { name, .. } => name,
+            Il::InstrWithUsize { name, .. } => name,
+            Il::InstrWithFloat { name, .. } => name,
+            Il::InstrWithString { name, .. } => name,
+            Il::InstrWithSymbol { name, .. } => name,
+        }
+    }
+
+    pub fn call(&self, env : &mut Env) -> Result<(), MachineError> {
+        match self {
+            Il::Instr { f, .. } => f(env),
+            Il::InstrWithUsize { f, param, .. } => f(*param, env),
+            Il::InstrWithFloat { f, param, .. } => f(*param, env),
+            Il::InstrWithString { f, param, .. } => f(param.clone(), env),
+            Il::InstrWithSymbol { f, param, .. } => f(param.clone(), env),
+        }
+    }
+}
 
 impl std::fmt::Debug for Il {
     fn fmt(&self, f : &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Il")
-         .field("name", &self.0)
+         .field("name", &self.name())
          .finish()
     }
 }
 
 #[derive(Debug)]
 pub enum Word {
-    Il(Il),
+    Il(Vec<Il>),
     Func(Vec<Rc<Word>>),
     Exit,
 }

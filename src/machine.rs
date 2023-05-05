@@ -4,9 +4,7 @@ use std::collections::HashMap;
 
 use crate::data::*;
 
-// TODO no more main
-// TODO &str of input
-pub fn execute( env : &mut Env ) -> Result<(), MachineError> {
+pub fn execute( prog : &str, env : &mut Env ) -> Result<(), MachineError> {
 
     let mut ip : usize = 0;
 
@@ -18,8 +16,8 @@ pub fn execute( env : &mut Env ) -> Result<(), MachineError> {
 
             },
             Word::Il(instrs) => {
-                for instr in instrs.1.iter() {
-                    instr(env)?;
+                for instr in instrs.iter() {
+                    instr.call(env)?;
                 }
             },
             Word::Exit => {
