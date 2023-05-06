@@ -103,13 +103,12 @@ impl Env {
         Ok(())
     }
 
-    pub fn push_def(&mut self) {
+    pub fn new_def_level(&mut self) {
         self.def_stack.push(HashMap::new());
     }
 
-    pub fn pop_def(&mut self) -> Result<(), MachineError> {
-        // TODO error
-        self.def_stack.pop().ok_or(MachineError::Failure).map(|_| ())
+    pub fn pop_def_level(&mut self) {
+        self.def_stack.pop();
     }
 
     pub fn push_data(&mut self, data : IlData) {
@@ -121,13 +120,12 @@ impl Env {
         self.data_stack.pop().ok_or(MachineError::Failure)
     }
 
-    pub fn push_func(&mut self, word : &Rc<Word>, ip : usize) {
+    pub fn push_func_restore_point(&mut self, word : &Rc<Word>, ip : usize) {
         self.func_stack.push((word.clone(), ip));
     }
 
-    pub fn pop_func(&mut self) -> Result<(Rc<Word>, usize), MachineError> {
-        // TODO error
-        self.func_stack.pop().ok_or(MachineError::Failure)
+    pub fn pop_func_restore_point(&mut self) -> Option<(Rc<Word>, usize)> {
+        self.func_stack.pop()
     }
 
     pub fn get_dict(&self, target : &str) -> Result<Rc<Word>, MachineError> {
