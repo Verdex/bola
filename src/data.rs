@@ -128,12 +128,12 @@ impl Env {
         self.func_stack.pop()
     }
 
-    pub fn get_dict(&self, target : &str) -> Result<Rc<Word>, MachineError> {
+    pub fn lookup_word(&self, target : &str) -> Result<Rc<Word>, MachineError> {
         // TODO error
         self.dict.get(target).ok_or(MachineError::Failure).map(|x| x.clone())
     }
 
-    pub fn set_dict(&mut self, target : String, word : &Rc<Word>) -> Result<(), MachineError> {
+    pub fn define_word(&mut self, target : String, word : &Rc<Word>) -> Result<(), MachineError> {
         // TODO error (collision)
         self.dict.insert(target, word.clone());
         Ok(())
