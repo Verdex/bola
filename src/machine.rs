@@ -37,6 +37,13 @@ pub fn execute( prog : &str, env : &mut Env ) -> Result<(), MachineError> {
                 for instr in instrs.iter() {
                     instr.call(env)?;
                 }
+                match env.pop_func_restore_point() {
+                    Some((word, new_ip)) => { 
+                        current_word = word;
+                        ip = new_ip;
+                    },
+                    None => { break 'main_loop; },
+                }
             },
             Word::Exit => {
                 break 'main_loop;
