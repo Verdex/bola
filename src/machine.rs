@@ -8,7 +8,7 @@ pub fn execute( prog : &str, env : &mut Env ) -> Result<(), MachineError> {
 
     let mut ip : usize = 0;
 
-    let mut current_word : Rc<Word> = env.get_dict("main").unwrap();
+    let mut current_word : Rc<Word> = env.lookup_word("main").unwrap();
 
     'main_loop : loop {
         match &*current_word {
