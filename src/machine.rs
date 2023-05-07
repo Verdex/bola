@@ -3,16 +3,57 @@ use std::rc::Rc;
 
 use crate::data::*;
 
-pub fn execute( prog : String, env : &mut Env ) -> Result<(), MachineError> {
-
-    let mut ip : usize = 0;
+// TODO prog should be Box<str> ?
+pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
 
     // TODO:  Something like foreach parser try to create a word and then execute it
     // then keep going until the prog is empty
     // Might be able to just leave this function alone and create another one that calls it
     // or some other abstraction.
+    let mut index = 0;
+    let mut prog_len = prog.len();
 
-    let mut current_word : Rc<Word> = env.lookup_word("main").unwrap();
+    env.push_data(IlData::Usize(0));
+    env.push_data(IlData::String(prog));
+    while index < prog_len {
+
+        let parsers = env.parsers.clone().into_iter();
+        'parsing : for parser in parsers {
+            execute_word(parser.clone(), env)?;
+
+            let result = env.pop_data_as(pattern!(IlData::Symbol(x) => x))?;
+            match &result[..] { 
+                OK_SYM => { break 'parsing; },
+                RESULT_SYM => { 
+                    let index = env.pop_data_as(pattern!(x @ IlData::Usize(_) => x))?;
+                    let prog = env.pop_data_as(pattern!(x @ IlData::String(_) => x))?;
+
+                    let word = env.pop_data_as(pattern!(IlData::Word(x) => x))?;
+                    execute_word(word, env)?;
+
+                    env.push_data(prog);
+                    env.push_data(index);
+                },
+                ERROR_SYM => { 
+                    // NOTE:  Make sure that the index is reset for the next parser.
+                    let _index = env.pop_data_as(pattern!(IlData::Usize(_) => ()))?;
+                    env.push_data(IlData::Usize(index));
+                },
+                FATAL_SYM => return Err(MachineError::FatalParse),
+                _ => unreachable!(),
+            }
+        }
+
+        index = env.pop_data_as(pattern!(IlData::Usize(x) => x))?;
+        env.push_data(IlData::Usize(index));
+    }
+
+    Ok(())
+}
+
+fn execute_word( mut current_word : Rc<Word>, env : &mut Env ) -> Result<(), MachineError> {
+
+    let mut ip : usize = 0;
 
     'main_loop : loop {
         match &*current_word {
