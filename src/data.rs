@@ -133,9 +133,9 @@ impl Env {
         self.dict.get(target).ok_or(MachineError::Failure).map(|x| x.clone())
     }
 
-    pub fn define_word(&mut self, target : String, word : &Rc<Word>) -> Result<(), MachineError> {
+    pub fn define_word(&mut self, target : String, word : Word) -> Result<(), MachineError> {
         // TODO error (collision)
-        self.dict.insert(target, word.clone());
+        self.dict.insert(target, Rc::new(word));
         Ok(())
     }
 }
