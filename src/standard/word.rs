@@ -38,6 +38,7 @@ pub fn def_word() -> Word {
         let sym = env.pop_data().unwrap(); // TODO error
         let def = env.pop_data().unwrap(); // TODO error
 
+        // TODO can instead use pop_data_as
         if let (IlData::Symbol(name), IlData::List(code)) = (sym, def) {
             let mut func_addrs = vec![];
             for func_name in code.iter() {
