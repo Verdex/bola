@@ -4,6 +4,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub enum IlData {
     Float(f64),
+    Usize(usize),
     Symbol(String),
     String(String),
     Pattern(IlPat),

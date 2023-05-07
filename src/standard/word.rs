@@ -9,6 +9,14 @@ pub fn push_float(value : f64) -> Word {
     Word::Il(vec![r])
 }
 
+pub fn push_usize(value : usize) -> Word {
+    let r = Il::InstrWithUsize { name : "push_usize".to_owned()
+                               , param: value
+                               , f: |param, env| { env.push_data(IlData::Usize(param)); Ok(()) }
+                               };
+    Word::Il(vec![r])
+}
+
 pub fn push_string(value : String) -> Word {
     let r = Il::InstrWithString { name : "push_string".to_owned()
                                 , param: value
