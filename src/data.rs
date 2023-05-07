@@ -128,6 +128,7 @@ impl Env {
         match f(&data) {
             Some(v) => Ok(v),
             None => { 
+                // Note:  Data pushed back on stack so that it can be checked out as to why it is inconsistent.
                 self.data_stack.push(data);
                 Err(MachineError::DataPopInconsistency) 
             },
