@@ -1,13 +1,13 @@
 
 // parser : needs env and chars returns word or Error/Fatal while also leaving the definition in the dictionary
-// parser : (string usize -- (Ok|Result|Error|Fatal) [word params*] string usize)
+// parser : (usize string -- (Ok|Result|Error|Fatal) [word params*] usize string)
 
 use crate::data::*;
 
 pub fn parse_whitespace() -> Word {
     fn word(env : &mut Env) -> Result<(), MachineError> {
-        let input = env.pop_data_as(pattern!(IlData::String(x) => x))?;
         let start_index = env.pop_data_as(pattern!(IlData::Usize(x) => x))?;
+        let input = env.pop_data_as(pattern!(IlData::String(x) => x))?;
 
         let mut target = input[start_index..].chars();
 
@@ -20,8 +20,8 @@ pub fn parse_whitespace() -> Word {
             }
         }
 
-        env.push_data(IlData::Usize(start_index + i));
         env.push_data(IlData::String(input));
+        env.push_data(IlData::Usize(start_index + i));
 
         Ok(())
     }
