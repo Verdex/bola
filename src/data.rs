@@ -154,3 +154,11 @@ impl Env {
         Ok(())
     }
 }
+
+macro_rules! pattern {
+    ($x:pat => $e:expr) => {
+        |d| match d { $x => Ok($e), _ => Err(d), }
+    };
+}
+
+pub (crate) use pattern;
