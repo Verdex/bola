@@ -13,7 +13,7 @@ fn main() {
     env.parsers.push(env.lookup_word("parse_whitespace").unwrap());
 
 
-    crate::machine::execute("  ", &mut env).unwrap();
+    crate::machine::execute("  ".to_owned(), &mut env).unwrap();
 
     println!("{:?}", env);
 }
