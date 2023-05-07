@@ -24,7 +24,7 @@ pub enum IlPat {
 #[derive(Debug)]
 pub enum MachineError {
     Failure,
-    DataPopInconsistency,
+    DataPopInconsistency(String),
     DataStackEmpty,
     FatalParse,
 }
@@ -128,14 +128,14 @@ impl Env {
         self.data_stack.pop().ok_or(MachineError::Failure)
     }
 
-    pub fn pop_data_as<T, F: Fn(IlData) -> Result<T, IlData>>(&mut self, f : F) -> Result<T, MachineError> {
+    pub fn pop_data_as<T, F: Fn(IlData) -> Result<T, IlData>>(&mut self, error_str : String, f : F) -> Result<T, MachineError> {
         let data = self.data_stack.pop().ok_or(MachineError::DataStackEmpty)?;
         match f(data) {
             Ok(v) => Ok(v),
             Err(d) => { 
                 // Note:  Data pushed back on stack so that it can be checked out as to why it is inconsistent.
                 self.data_stack.push(d);
-                Err(MachineError::DataPopInconsistency) 
+                Err(MachineError::DataPopInconsistency(error_str)) 
             },
         }
     }

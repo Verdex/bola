@@ -13,22 +13,22 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
     let mut index = 0;
     let mut prog_len = prog.len();
 
-    env.push_data(IlData::Usize(0));
     env.push_data(IlData::String(prog));
+    env.push_data(IlData::Usize(0));
     while index < prog_len {
 
         let parsers = env.parsers.clone().into_iter();
         'parsing : for parser in parsers {
             execute_word(parser.clone(), env)?;
 
-            let result = env.pop_data_as(pattern!(IlData::Symbol(x) => x))?;
-            match &result[..] { 
+            let parse_result = env.pop_data_as("execute::parse_result".to_owned(), pattern!(IlData::Symbol(x) => x))?;
+            match &parse_result[..] { 
                 OK_SYM => { break 'parsing; },
                 RESULT_SYM => { 
-                    let index = env.pop_data_as(pattern!(x @ IlData::Usize(_) => x))?;
-                    let prog = env.pop_data_as(pattern!(x @ IlData::String(_) => x))?;
+                    let index = env.pop_data_as("execute::result::index".to_owned(), pattern!(x @ IlData::Usize(_) => x))?;
+                    let prog = env.pop_data_as("execute::result::prog".to_owned(), pattern!(x @ IlData::String(_) => x))?;
 
-                    let word = env.pop_data_as(pattern!(IlData::Word(x) => x))?;
+                    let word = env.pop_data_as("execute::result::word".to_owned(), pattern!(IlData::Word(x) => x))?;
                     execute_word(word, env)?;
 
                     env.push_data(prog);
@@ -36,7 +36,7 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
                 },
                 ERROR_SYM => { 
                     // NOTE:  Make sure that the index is reset for the next parser.
-                    let _index = env.pop_data_as(pattern!(IlData::Usize(_) => ()))?;
+                    let _index = env.pop_data_as("execute::error::_index".to_owned(), pattern!(IlData::Usize(_) => ()))?;
                     env.push_data(IlData::Usize(index));
                 },
                 FATAL_SYM => return Err(MachineError::FatalParse),
@@ -44,7 +44,7 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
             }
         }
 
-        index = env.pop_data_as(pattern!(IlData::Usize(x) => x))?;
+        index = env.pop_data_as("execute::end_while::index".to_owned(), pattern!(IlData::Usize(x) => x))?;
         env.push_data(IlData::Usize(index));
     }
 

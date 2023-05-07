@@ -6,8 +6,8 @@ use crate::data::*;
 
 pub fn parse_whitespace() -> Word {
     fn word(env : &mut Env) -> Result<(), MachineError> {
-        let start_index = env.pop_data_as(pattern!(IlData::Usize(x) => x))?;
-        let input = env.pop_data_as(pattern!(IlData::String(x) => x))?;
+        let start_index = env.pop_data_as("parse_whitespace::start_index".to_owned(), pattern!(IlData::Usize(x) => x))?;
+        let input = env.pop_data_as("parse_whitespace::start_index".to_owned(), pattern!(IlData::String(x) => x))?;
 
         let mut target = input[start_index..].chars();
 
@@ -22,6 +22,7 @@ pub fn parse_whitespace() -> Word {
 
         env.push_data(IlData::String(input));
         env.push_data(IlData::Usize(start_index + i));
+        env.push_data(IlData::Symbol(OK_SYM.to_owned()));
 
         Ok(())
     }
