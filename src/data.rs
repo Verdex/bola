@@ -22,7 +22,9 @@ pub enum IlPat {
 
 #[derive(Debug)]
 pub enum MachineError {
-    Failure
+    Failure,
+    DataPopInconsistency,
+    DataStackEmpty,
 }
 
 pub enum Il {
@@ -119,6 +121,17 @@ impl Env {
     pub fn pop_data(&mut self) -> Result<IlData, MachineError> {
         // TODO error
         self.data_stack.pop().ok_or(MachineError::Failure)
+    }
+
+    pub fn pop_data_as<T, F: Fn(&IlData) -> Option<T>>(&mut self, f : F) -> Result<T, MachineError> {
+        let data = self.data_stack.pop().ok_or(MachineError::DataStackEmpty)?;
+        match f(&data) {
+            Some(v) => Ok(v),
+            None => { 
+                self.data_stack.push(data);
+                Err(MachineError::DataPopInconsistency) 
+            },
+        }
     }
 
     pub fn push_func_restore_point(&mut self, word : &Rc<Word>, ip : usize) {
