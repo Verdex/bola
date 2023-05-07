@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub enum IlData {
+    Word(Rc<Word>),
     Float(f64),
     Usize(usize),
     Symbol(String),
@@ -25,10 +26,12 @@ pub enum MachineError {
     Failure,
     DataPopInconsistency,
     DataStackEmpty,
+    FatalParse,
 }
 
 pub enum Il {
     Instr { name: String, f : fn(&mut Env) -> Result<(), MachineError> },
+    InstrWithWord { name: String, param : Rc<Word>, f : fn(Rc<Word>, &mut Env) -> Result<(), MachineError> },
     InstrWithUsize { name: String, param : usize, f : fn(usize, &mut Env) -> Result<(), MachineError> },
     InstrWithFloat { name: String, param : f64, f : fn(f64, &mut Env) -> Result<(), MachineError> },
     InstrWithString { name: String, param : String, f : fn(String, &mut Env) -> Result<(), MachineError> },
@@ -39,6 +42,7 @@ impl Il {
     pub fn name(&self) -> &str {
         match self {
             Il::Instr { name, .. } => name,
+            Il::InstrWithWord { name, .. } => name,
             Il::InstrWithUsize { name, .. } => name,
             Il::InstrWithFloat { name, .. } => name,
             Il::InstrWithString { name, .. } => name,
@@ -49,6 +53,7 @@ impl Il {
     pub fn call(&self, env : &mut Env) -> Result<(), MachineError> {
         match self {
             Il::Instr { f, .. } => f(env),
+            Il::InstrWithWord { f, param, .. } => f(param.clone(), env),
             Il::InstrWithUsize { f, param, .. } => f(*param, env),
             Il::InstrWithFloat { f, param, .. } => f(*param, env),
             Il::InstrWithString { f, param, .. } => f(param.clone(), env),

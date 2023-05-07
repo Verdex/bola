@@ -1,4 +1,5 @@
 
+use std::rc::Rc;
 use crate::data::*;
 
 pub fn push_float(value : f64) -> Word {
@@ -14,6 +15,14 @@ pub fn push_usize(value : usize) -> Word {
                                , param: value
                                , f: |param, env| { env.push_data(IlData::Usize(param)); Ok(()) }
                                };
+    Word::Il(vec![r])
+}
+
+pub fn push_word(value : Rc<Word>) -> Word {
+    let r = Il::InstrWithWord { name : "push_word".to_owned()
+                              , param: value
+                              , f: |param, env| { env.push_data(IlData::Word(param)); Ok(()) }
+                              };
     Word::Il(vec![r])
 }
 
