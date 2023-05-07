@@ -3,9 +3,14 @@ use std::rc::Rc;
 
 use crate::data::*;
 
-pub fn execute( prog : &str, env : &mut Env ) -> Result<(), MachineError> {
+pub fn execute( prog : String, env : &mut Env ) -> Result<(), MachineError> {
 
     let mut ip : usize = 0;
+
+    // TODO:  Something like foreach parser try to create a word and then execute it
+    // then keep going until the prog is empty
+    // Might be able to just leave this function alone and create another one that calls it
+    // or some other abstraction.
 
     let mut current_word : Rc<Word> = env.lookup_word("main").unwrap();
 

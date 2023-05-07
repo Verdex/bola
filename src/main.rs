@@ -9,7 +9,11 @@ fn main() {
 
     let mut env = Env::new();
 
-    crate::machine::execute("", &mut env).unwrap();
+    env.define_word("parse_whitespace".to_owned(), crate::standard::parser::parse_whitespace());
+    env.parsers.push(env.lookup_word("parse_whitespace").unwrap());
+
+
+    crate::machine::execute("  ", &mut env).unwrap();
 
     println!("{:?}", env);
 }

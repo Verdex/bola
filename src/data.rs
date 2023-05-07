@@ -78,7 +78,7 @@ pub struct Env {
     data_stack : Vec<IlData>,
     func_stack : Vec<(Rc<Word>, usize)>,
     dict : HashMap<String, Rc<Word>>,
-    parsers : Vec<Rc<Word>>,
+    pub parsers : Vec<Rc<Word>>,
 }
 
 impl Env {
