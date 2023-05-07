@@ -167,3 +167,8 @@ macro_rules! pattern {
 }
 
 pub (crate) use pattern;
+
+pub const OK_SYM : &'static str = "OK";
+pub const RESULT_SYM : &'static str = "RESULT";
+pub const ERROR_SYM : &'static str = "ERROR";
+pub const FATAL_SYM : &'static str = "FATAL";
