@@ -23,7 +23,7 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
 
             let parse_result = env.pop_data_as("execute::parse_result".to_owned(), pattern!(IlData::Symbol(x) => x))?;
             match &parse_result[..] { 
-                OK_SYM => { break 'parsing; },
+                OK_SYM => { break 'parsing; }, // TODO:  if index doesn't change at all then consider this an error?
                 RESULT_SYM => { 
                     let index = env.pop_data_as("execute::result::index".to_owned(), pattern!(x @ IlData::Usize(_) => x))?;
                     let prog = env.pop_data_as("execute::result::prog".to_owned(), pattern!(x @ IlData::String(_) => x))?;
@@ -39,10 +39,10 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
                     let _index = env.pop_data_as("execute::error::_index".to_owned(), pattern!(IlData::Usize(_) => ()))?;
                     env.push_data(IlData::Usize(index));
                 },
-                FATAL_SYM => return Err(MachineError::FatalParse),
+                FATAL_SYM => { return Err(MachineError::FatalParse); },
                 _ => unreachable!(),
             }
-        }
+        }  // TODO if none of the parsers work, then trigger failure
 
         index = env.pop_data_as("execute::end_while::index".to_owned(), pattern!(IlData::Usize(x) => x))?;
         env.push_data(IlData::Usize(index));

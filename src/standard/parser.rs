@@ -22,7 +22,12 @@ pub fn parse_whitespace() -> Word {
 
         env.push_data(IlData::String(input));
         env.push_data(IlData::Usize(start_index + i));
-        env.push_data(IlData::Symbol(OK_SYM.to_owned()));
+        if i == 0 {
+            env.push_data(IlData::Symbol(ERROR_SYM.to_owned()));
+        }
+        else {
+            env.push_data(IlData::Symbol(OK_SYM.to_owned()));
+        }
 
         Ok(())
     }
