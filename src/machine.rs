@@ -6,10 +6,6 @@ use crate::data::*;
 // TODO prog should be Box<str> ?
 pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
 
-    // TODO:  Something like foreach parser try to create a word and then execute it
-    // then keep going until the prog is empty
-    // Might be able to just leave this function alone and create another one that calls it
-    // or some other abstraction.
     let mut index = 0;
     let mut prog_len = prog.len();
 
