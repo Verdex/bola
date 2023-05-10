@@ -21,10 +21,10 @@ fn main() {
 
     env.define_word("blarg".to_owned(), blarg);
 
-    env.define_word("parse_whitespace".to_owned(), crate::standard::parser::parse_whitespace());
+    env.define_word("parse_whitespace".to_owned(), crate::standard::parser::parse_whitespace()).unwrap();
     env.parsers.push(env.lookup_word("parse_whitespace").unwrap());
 
-    env.define_word("parse_word_symbol".to_owned(), crate::standard::parser::parse_word_symbol());
+    env.define_word("parse_word_symbol".to_owned(), crate::standard::parser::parse_word_symbol()).unwrap();
     env.parsers.push(env.lookup_word("parse_word_symbol").unwrap());
 
 
