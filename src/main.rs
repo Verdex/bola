@@ -31,8 +31,12 @@ fn main() {
     env.define_word("parse_float".to_owned(), crate::standard::parser::parse_float()).unwrap();
     env.parsers.push(env.lookup_word("parse_float").unwrap());
 
-    let result = crate::machine::execute("  100".to_owned(), &mut env);
+    env.define_word("parse_anon_word".to_owned(), crate::standard::parser::parse_anon_word()).unwrap();
+    env.parsers.push(env.lookup_word("parse_anon_word").unwrap());
+
+    let result = crate::machine::execute("  100 900 [5]".to_owned(), &mut env);
 
     println!("{:?}", result);
     println!("{:?}", env);
 }
+

@@ -43,7 +43,8 @@ pub fn parse_anon_word() -> Word {
             Some('[') => {
                 try_take_while(&mut target, |c| c != ']')
             },
-            _ => {
+            z => {
+                println!("blarg {:?}", z);
                 env.push_data(IlData::String(input));
                 env.push_data(IlData::Usize(start_index));
                 env.push_data(IlData::Symbol(ERROR_SYM.to_owned()));
@@ -52,16 +53,40 @@ pub fn parse_anon_word() -> Word {
         };
 
         if let Some(target) = target {
+            let target_len = target.len();
+            // TODO need to grab first symbol for name
+            let main = env.with_clean_data_stack();
 
+            crate::machine::quote(target, env)?;
+            let quoted_word = env.with_clean_data_stack();
+            env.restore_data_stack(main);
+
+            if quoted_word.len() < 2 {
+                return Err(MachineError::FatalParse("parse_anon_word::running quote resulted in invalid data stack".to_owned()));
+            }
+
+            let end = quoted_word.len() - 2;
+            let anon_word_body = &quoted_word[0..end];
+
+            println!("blarg ::: {:?}\n\n", anon_word_body);
+
+            env.push_data(IlData::String(input));
+            env.push_data(IlData::Usize(start_index + target_len + 1));
+            env.push_data(IlData::Symbol(OK_SYM.to_owned())); // TODO should be RESULT with the anon word
+            // TODO need to check the final length
         }
         else {
-
+            // Note:  There was no end bracket
+            let failure_index = input.len() - 1;
+            env.push_data(IlData::String(input));
+            env.push_data(IlData::Usize(failure_index));
+            env.push_data(IlData::Symbol(FATAL_SYM.to_owned()));
         }
 
         Ok(())
     }
 
-    Word::Il(vec![Il::Instr { name: "parse_def_word".to_owned(), f : word }])
+    Word::Il(vec![Il::Instr { name: "parse_anon_word".to_owned(), f : word }])
 }
 
 fn try_take_while<'a>( input : &mut std::str::Chars<'a>, pred : fn (char) -> bool) -> Option<String> {

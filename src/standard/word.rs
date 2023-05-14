@@ -52,7 +52,7 @@ pub fn def_word() -> Word {
             let mut func_addrs = vec![];
             for func_name in code.iter() {
                 match func_name {
-                    IlData::Symbol(word_name) => {
+                    IlData::Symbol(word_name) => { // TODO all of these should be IlData::Word 
                         let addr = env.lookup_word(word_name).unwrap(); // TODO
                         func_addrs.push(addr);
                     },

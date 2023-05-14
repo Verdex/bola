@@ -26,7 +26,7 @@ pub enum MachineError {
     Failure,
     DataPopInconsistency(String),
     DataStackEmpty,
-    FatalParse,
+    FatalParse(String),
 }
 
 pub enum Il {

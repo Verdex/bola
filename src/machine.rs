@@ -48,7 +48,7 @@ fn run(prog : String, env : &mut Env, process : fn(Rc<Word>, &mut Env) -> Result
                     let _index = env.pop_data_as("run::error::_index".to_owned(), pattern!(IlData::Usize(_) => ()))?;
                     env.push_data(IlData::Usize(index));
                 },
-                FATAL_SYM => { return Err(MachineError::FatalParse); },
+                FATAL_SYM => { return Err(MachineError::FatalParse("run::encountered fatal parse".to_owned())); }, // TODO should probably say the index of the failure
                 _ => unreachable!(),
             }
         }  // TODO if none of the parsers work, then trigger failure
