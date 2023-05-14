@@ -4,10 +4,17 @@ use std::rc::Rc;
 use crate::data::*;
 
 
-
 // TODO prog should be Box<str> ?
 pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
     run(prog, env, execute_word)
+}
+
+pub fn quote(prog : String, env : &mut Env) -> Result<(), MachineError> {
+    fn push( current_word : Rc<Word>, env : &mut Env ) -> Result<(), MachineError> {
+        env.push_data(IlData::Word(current_word));
+        Ok(())
+    }
+    run(prog, env, push)
 }
 
 fn run(prog : String, env : &mut Env, process : fn(Rc<Word>, &mut Env) -> Result<(), MachineError>) -> Result<(), MachineError> {
