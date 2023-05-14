@@ -27,8 +27,10 @@ fn main() {
     env.define_word("parse_word_symbol".to_owned(), crate::standard::parser::parse_word_symbol()).unwrap();
     env.parsers.push(env.lookup_word("parse_word_symbol").unwrap());
 
+    env.define_word("parse_float".to_owned(), crate::standard::parser::parse_float()).unwrap();
+    env.parsers.push(env.lookup_word("parse_float").unwrap());
 
-    let result = crate::machine::execute("  blarg".to_owned(), &mut env);
+    let result = crate::machine::execute("  100".to_owned(), &mut env);
 
     println!("{:?}", result);
     println!("{:?}", env);
