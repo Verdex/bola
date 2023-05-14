@@ -96,6 +96,14 @@ impl Env {
             }
     }
 
+    pub fn with_clean_data_stack(&mut self) -> Vec<IlData> {
+        std::mem::replace(&mut self.data_stack, vec![])
+    }
+
+    pub fn restore_data_stack(&mut self, stack : Vec<IlData>) {
+        self.data_stack = stack;
+    }
+
     pub fn get_def(&self, name : &String) -> Option<&IlData> {
         let target = self.def_stack.iter().rev().find(|map| map.contains_key(name));
         match target { 
