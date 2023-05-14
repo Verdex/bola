@@ -3,8 +3,14 @@ use std::rc::Rc;
 
 use crate::data::*;
 
+
+
 // TODO prog should be Box<str> ?
 pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
+    run(prog, env, execute_word)
+}
+
+fn run(prog : String, env : &mut Env, process : fn(Rc<Word>, &mut Env) -> Result<(), MachineError>) -> Result<(), MachineError> {
 
     let mut index = 0;
     let mut prog_len = prog.len();
@@ -17,22 +23,22 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
         'parsing : for parser in parsers {
             execute_word(parser.clone(), env)?;
 
-            let parse_result = env.pop_data_as("execute::parse_result".to_owned(), pattern!(IlData::Symbol(x) => x))?;
+            let parse_result = env.pop_data_as("run::parse_result".to_owned(), pattern!(IlData::Symbol(x) => x))?;
             match &parse_result[..] { 
                 OK_SYM => { break 'parsing; }, 
                 RESULT_SYM => { 
-                    let index = env.pop_data_as("execute::result::index".to_owned(), pattern!(x @ IlData::Usize(_) => x))?;
-                    let prog = env.pop_data_as("execute::result::prog".to_owned(), pattern!(x @ IlData::String(_) => x))?;
+                    let index = env.pop_data_as("run::result::index".to_owned(), pattern!(x @ IlData::Usize(_) => x))?;
+                    let prog = env.pop_data_as("run::result::prog".to_owned(), pattern!(x @ IlData::String(_) => x))?;
 
-                    let word = env.pop_data_as("execute::result::word".to_owned(), pattern!(IlData::Word(x) => x))?;
-                    execute_word(word, env)?;
+                    let word = env.pop_data_as("run::result::word".to_owned(), pattern!(IlData::Word(x) => x))?;
+                    process(word, env)?;
 
                     env.push_data(prog);
                     env.push_data(index);
                 },
                 ERROR_SYM => { 
                     // NOTE:  Make sure that the index is reset for the next parser.
-                    let _index = env.pop_data_as("execute::error::_index".to_owned(), pattern!(IlData::Usize(_) => ()))?;
+                    let _index = env.pop_data_as("run::error::_index".to_owned(), pattern!(IlData::Usize(_) => ()))?;
                     env.push_data(IlData::Usize(index));
                 },
                 FATAL_SYM => { return Err(MachineError::FatalParse); },
@@ -40,7 +46,7 @@ pub fn execute(prog : String, env : &mut Env) -> Result<(), MachineError> {
             }
         }  // TODO if none of the parsers work, then trigger failure
 
-        index = env.pop_data_as("execute::end_while::index".to_owned(), pattern!(IlData::Usize(x) => x))?;
+        index = env.pop_data_as("run::end_while::index".to_owned(), pattern!(IlData::Usize(x) => x))?;
         env.push_data(IlData::Usize(index));
     }
 
